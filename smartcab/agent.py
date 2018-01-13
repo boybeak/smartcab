@@ -85,12 +85,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
-        maxQ = None
-        if state in self.Q.keys():
-            d = self.Q.get(state)
-            maxQ = max(d.values())
-        else:
-            pass
+        maxQ = max(self.Q.get(state).d.values())
 
         return maxQ 
 
@@ -129,27 +124,17 @@ class LearningAgent(Agent):
         # When not learning, choose a random action
         # When learning, choose a random action with 'epsilon' probability
         #   Otherwise, choose an action with the highest Q-value for the current state
-        if self.epsilon == 0.0:
-            import operator
-            d = self.Q.get(state)
-            action = max(d.iteritems(), key=operator.itemgetter(1))[0]
-        else:
-            if self.learning:
-                ranValue = random.randint(0, 1000)
-                esp = self.epsilon * 1000
-                if esp < ranValue:
-                    action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
-                else:
-                    import operator
-                    d = self.Q.get(state)
-                    action = max(d.iteritems(), key=operator.itemgetter(1))[0]
+
+        if self.learning:
+            ranValue = random.random()
+            if  ranValue< self.epsilon:
+                action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
             else:
                 import operator
                 d = self.Q.get(state)
-                # action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
-                if d is not None:
-                    kv = max(d.iteritems(), key=operator.itemgetter(1))
-                    action = kv[0]
+                action = max(d.iteritems(), key=operator.itemgetter(1))[0]
+        else:
+            action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
         return action
 
 
@@ -164,13 +149,7 @@ class LearningAgent(Agent):
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning:
-            d = self.Q.get(state)
-            oldValue = d[action]
-            d[action] = oldValue + self.alpha * (reward - oldValue)
-
-            # d[action] = (1 - self.alpha)*d[action] + self.alpha * (reward + self.get_maxQ(state))
-
-            self.Q[state] = d
+            self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
         #print 'learn d[' + str(action) + ']=' + str(d[action])
         return
 
