@@ -40,7 +40,7 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-        self.epsilon = self.alphaT(0.99, self.t)
+        self.epsilon = self.alphaT(0.992, self.t)
         self.t += 1
         if testing:
             self.epsilon = 0.0
@@ -67,6 +67,7 @@ class LearningAgent(Agent):
         waypoint = self.planner.next_waypoint() # The next waypoint 
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
         deadline = self.env.get_deadline(self)  # Remaining deadline
+        print deadline
 
         ########### 
         ## TO DO ##
@@ -127,12 +128,18 @@ class LearningAgent(Agent):
 
         if self.learning:
             ranValue = random.random()
-            if  ranValue< self.epsilon:
+            if ranValue< self.epsilon:
                 action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
             else:
-                import operator
-                d = self.Q.get(state)
-                action = max(d.iteritems(), key=operator.itemgetter(1))[0]
+                maxValue = max(self.Q[state].values())
+                maxList = []
+                for key, value in self.Q[state].items():
+                    if value == maxValue:
+                        maxList.append(key)
+                action = maxList[random.randint(0, len(maxList) - 1)]
+                # print "choose_action state_dict=" + str(self.Q[state])
+                # print "choose_action maxList=" + str(maxList)
+                # print "choose_action maxValue=" + str(maxValue) + " action=" + str(action)
         else:
             action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
         return action
@@ -208,7 +215,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10)
+    sim.run(tolerance=0.01, n_test=10)
 
 
 if __name__ == '__main__':
