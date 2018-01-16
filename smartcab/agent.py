@@ -131,15 +131,9 @@ class LearningAgent(Agent):
             if ranValue< self.epsilon:
                 action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
             else:
-                maxValue = max(self.Q[state].values())
-                maxList = []
-                for key, value in self.Q[state].items():
-                    if value == maxValue:
-                        maxList.append(key)
-                action = maxList[random.randint(0, len(maxList) - 1)]
-                # print "choose_action state_dict=" + str(self.Q[state])
-                # print "choose_action maxList=" + str(maxList)
-                # print "choose_action maxValue=" + str(maxValue) + " action=" + str(action)
+                maxQ = self.get_maxQ(state)
+                max_keys = [k for k, v in self.Q[state].items() if v == maxQ]
+                action = random.choice(max_keys)
         else:
             action = self.valid_actions[random.randint(0, len(self.valid_actions) - 1)]
         return action
